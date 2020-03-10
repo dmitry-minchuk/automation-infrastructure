@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>JobDsl3</artifactId>
+    <artifactId>automation-infra</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
