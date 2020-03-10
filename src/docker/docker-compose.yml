@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+  jenkins:
+    container_name: jenkins
+    build: .
+    ports:
+      - "8088:8080"
+      - "50000:50000"
+    env_file:
+      - variables.env
+    volumes:
+      - ./jenkins:/var/jenkins_home
+      - /var/jenkins_home/workspace/allure-report
+    restart: always
+
+  selenoid:
+    container_name: selenoid
+    network_mode: bridge
+    image: "aerokube/selenoid"
+    # default directory for browsers.json is /etc/selenoid/
+    command: -listen :4444 -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video/ -timeout 3m
+    ports:
+      - "4444:4444"
+    env_file:
+      - variables.env
+    volumes:
+      - $PWD:/etc/selenoid/ # assumed current dir contains browsers.json
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+  selenoid-ui:
+    container_name: selenoid-ui
+    network_mode: bridge
+    image: "aerokube/selenoid-ui"
+    links:
+      - selenoid
+    ports:
+      - "8080:8080"
+    env_file:
+      - variables.env
+    command: ["--selenoid-uri", "http://selenoid:4444"]
+    restart: always
+
+  nginx:
+    container_name: nginx
+    image: "nginx"
+    command: apt-get update -y && apt-get install -y nano
+    ports:
+      - "80:80"
+    volumes_from:
+      - jenkins:ro
+    restart: always
