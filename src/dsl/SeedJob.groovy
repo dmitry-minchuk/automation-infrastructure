@@ -62,13 +62,6 @@ static def cloneRepo(String repo) {
     repoCloneCommand.execute()
 }
 
-def getHostIp() {
-    // getting host Ip and setting it into pipeline to create correct selenium_host url
-    def hostName = System.getenv('JENKINS_LOCAL_HOST')
-    println('Found host: ' + hostName)
-    return hostName
-}
-
 static def getXmlFileList(String repoName) {
     // collecting .xml suites
     LinkedHashMap<String,File> xmlFiles = [:]

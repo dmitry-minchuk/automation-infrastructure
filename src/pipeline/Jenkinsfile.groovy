@@ -1,5 +1,5 @@
 //mvn command
-def StringBuilder mavenCommand = 'mvn clean test'
+StringBuilder mavenCommand = new StringBuilder('mvn clean test')
 
 //jenkins job parameters named as in .xml suite or config.properties
 def suiteName = 'suite_name'

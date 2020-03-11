@@ -19,7 +19,7 @@ services:
     network_mode: bridge
     image: "aerokube/selenoid"
     # default directory for browsers.json is /etc/selenoid/
-    command: -listen :4444 -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video/ -timeout 3m
+    command: -listen :4444 -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video/ -timeout 3m -limit 10
     ports:
       - "4444:4444"
     env_file:
