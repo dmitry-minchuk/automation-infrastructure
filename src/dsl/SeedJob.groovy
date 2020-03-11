@@ -1,29 +1,33 @@
 import javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration
 import jenkins.model.*
 
+def seedJobName = 'SeedJob' // Need to be excluded from the deletion list
+
 // defining repository
 def repoName = 'pipeline-demo'
-def seedJobName = 'SeedJob' // Need to be excluded from deletion list
 def repoPath = 'git://github.com/dmitry-minchuk/' + repoName + '.git'
 
 //jenkins job parameters
-def suiteName = 'suiteName'
-def enableVnc = 'enableVNC'
-def jenkinsDefaultRetryCount = 'jenkinsDefaultRetryCount'
+def suiteName = 'suite_name'
+def enableVnc = 'enable_vnc'
+def jenkinsDefaultRetryCount = 'retry_count'
+def env = 'env'
+def cron = 'cron'
 
 disableScriptApproval()
 cloneRepo(repoPath)
-def xmlFiles = getXmlFileList(repoName)
+LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
 updateJobList(xmlFiles, seedJobName)
 
 // creating pipeline jobs
 xmlFiles.each { xmlFile ->
     pipelineJob(xmlFile.getKey()) {
         parameters {
-//            globalVariableParam('JENKINS_LOCAL_HOST', hostName, 'Host IP')
             globalVariableParam(suiteName, xmlFile.getKey(), 'Suite name')
-            globalVariableParam(enableVnc, retrieveFileRawValue(xmlFile.getValue() as File, enableVnc), 'Video streaming from selenoid_ui.')
-            globalVariableParam(jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue() as File, jenkinsDefaultRetryCount), 'Number of attempts for UI failing test.')
+            globalVariableParam(enableVnc, retrieveFileRawValue(xmlFile.getValue(), enableVnc), 'Video streaming from selenoid_ui.')
+            globalVariableParam(jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount), 'Number of attempts for UI failing test.')
+            globalVariableParam(env, retrieveFileRawValue(xmlFile.getValue(), env), 'Test environment to run the suite in.')
+            globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
         }
 
         triggers {}
@@ -44,6 +48,8 @@ xmlFiles.each { xmlFile ->
     }
 }
 
+//helpers
+@SuppressWarnings("GroovyAssignabilityCheck")
 def disableScriptApproval() {
     // disable Job DSL script approval
     println('Disabling jenkins script approval...')
@@ -51,8 +57,8 @@ def disableScriptApproval() {
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
 }
 
-def cloneRepo(repo) {
-    def repoCloneCommand = 'git clone ' + repo
+static def cloneRepo(String repo) {
+    String repoCloneCommand = 'git clone ' + repo
     repoCloneCommand.execute()
 }
 
@@ -63,9 +69,9 @@ def getHostIp() {
     return hostName
 }
 
-def getXmlFileList(repoName) {
+static def getXmlFileList(String repoName) {
     // collecting .xml suites
-    def xmlFiles = [:]
+    LinkedHashMap<String,File> xmlFiles = [:]
     def dir = new File(repoName + '/src/test/resources/testng_suites/')
     dir.eachFile () { file ->
         xmlFiles.put(file.getName(), file)
@@ -73,7 +79,7 @@ def getXmlFileList(repoName) {
     return xmlFiles
 }
 
-def updateJobList(xmlFiles, seedJobName) {
+def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
     // Getting all registered jobs
     println('=====================================')
 

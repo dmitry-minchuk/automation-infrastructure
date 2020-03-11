@@ -1,43 +1,55 @@
-//jenkins job parameters
-def suiteName = 'suiteName'
-def enableVnc = 'enableVNC'
-def jenkinsDefaultRetryCount = 'jenkinsDefaultRetryCount'
+//mvn command
+def StringBuilder mavenCommand = 'mvn clean test'
 
+//jenkins job parameters named as in .xml suite or config.properties
+def suiteName = 'suite_name'
+def enableVnc = 'enable_vnc'
+def jenkinsDefaultRetryCount = 'retry_count'
+def env = 'env'
+def cron = 'cron'
+
+//building maven command with original maven property names and its values
+appendMvnCommand(mavenCommand, "suite", getGlobalVariableValue(suiteName))
+buildSeleniumHostProperty(mavenCommand)
+appendMvnCommand(mavenCommand, jenkinsDefaultRetryCount, getGlobalVariableValue(jenkinsDefaultRetryCount))
+appendMvnCommand(mavenCommand, 'enableVNC', getGlobalVariableValue(enableVnc))
+appendMvnCommand(mavenCommand, env, getGlobalVariableValue(env))
+println('Maven command executable: ' + mavenCommand)
+
+//pipeline itself
 pipeline {
-  agent { label 'master' }
+  agent any
+  if(isValueNotEmpty(getGlobalVariableValue(cron))) {
+    triggers {
+      cron(getGlobalVariableValue(cron))
+    }
+  }
   stages {
     stage('test') {
       steps {
-        def JENKINS_LOCAL_HOST = sh(script: 'curl http://checkip.amazonaws.com', returnStdout: true)
-        sh "mvn clean test " +
-                "-Dsuite=" + '${' + suiteName + '} ' +
-                "-Dselenium_host=http://" + JENKINS_LOCAL_HOST + ":4444/wd/hub " +
-                "-DenableVNC=" + '${' + enableVnc + '} '
+        sh mavenCommand
       }
     }
-
-// Following steps may not work since they were added as example
-
-//    stage('allure report') {
-//      steps {
-//        script {
-//          allure([
-//                  includeProperties: false,
-//                  jdk: '',
-//                  properties: [],
-//                  reportBuildPolicy: 'ALWAYS',
-//                  results: [[path: 'allure-results']]
-//          ])
-//        }
-//      }
-//    }
-
-//    stage ('cucumber report') {
-//      steps {
-//        cucumber buildStatus: "UNSTABLE",
-//                fileIncludePattern: "**/*.json",
-//                jsonReportDirectory: 'target/cucumber-reports'
-//      }
-//    }
   }
+}
+
+//helpers
+static def appendMvnCommand(StringBuilder mavenCommand, String mvnPropertyName, String mvnPropertyValue) {
+  if (isValueNotEmpty(mvnPropertyValue)) {
+    mavenCommand.append(" -D" + mvnPropertyName + "=" + mvnPropertyValue)
+  }
+}
+
+def buildSeleniumHostProperty(StringBuilder mavenCommand) {
+  String serverIp = sh(script: 'curl http://checkip.amazonaws.com', returnStdout: true)
+  String mvnProperty = ' -Dselenium_host=http://' + serverIp + ':4444/wd/hub'
+  mavenCommand.append(mvnProperty)
+}
+
+static def getGlobalVariableValue(String variableName) {
+  return '${' + variableName + '}'
+}
+
+static def isValueNotEmpty(String value) {
+  return value != null && "" != value
 }
