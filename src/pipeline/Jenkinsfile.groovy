@@ -1,3 +1,8 @@
+//jenkins job parameters
+def suiteName = 'suiteName'
+def enableVnc = 'enableVNC'
+def jenkinsDefaultRetryCount = 'jenkinsDefaultRetryCount'
+
 pipeline {
   agent { label 'master' }
   stages {
@@ -5,9 +10,9 @@ pipeline {
       steps {
         def JENKINS_LOCAL_HOST = sh(script: 'curl http://checkip.amazonaws.com', returnStdout: true)
         sh "mvn clean test " +
-                "-Dsuite=" + '${SUITE_NAME} ' +
+                "-Dsuite=" + '${' + suiteName + '} ' +
                 "-Dselenium_host=http://" + JENKINS_LOCAL_HOST + ":4444/wd/hub " +
-                "-DenableVNC=" + '${ENABLE_VNC}'
+                "-DenableVNC=" + '${' + enableVnc + '} '
       }
     }
 
