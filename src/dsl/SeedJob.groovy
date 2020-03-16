@@ -19,7 +19,7 @@ cloneRepo(repoPath)
 LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
 updateJobList(xmlFiles, seedJobName)
 
-// creating pipeline jobs
+println("\nGenerating pipeline jobs.")
 xmlFiles.each { xmlFile ->
     pipelineJob(xmlFile.getKey()) {
         parameters {
@@ -51,8 +51,7 @@ xmlFiles.each { xmlFile ->
 //helpers
 @SuppressWarnings("GroovyAssignabilityCheck")
 def disableScriptApproval() {
-    // disable Job DSL script approval
-    println('Disabling jenkins script approval...')
+    println("\nDisabling jenkins script approval.")
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).useScriptSecurity=false
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
 }
@@ -107,13 +106,13 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
         }
     }
 
-    println("\nUnnecessary job deletion complete.")
+    println("Unnecessary job deletion complete.\n")
 }
 
 def retrieveFileRawValue(File file, String parameterName) {
-    def splitFile = ""
+    def splitFile = ''
     if (file.text.length() > 0) {
-        splitFile = file.text.split("<")
+        splitFile = file.text.split('<')
     }
     def parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
     def parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
