@@ -14,6 +14,8 @@ def jenkinsDefaultRetryCount = 'retry_count'
 def env = 'env'
 def cron = 'cron'
 
+String cronValue = '0 5 31 2 *' //default cron
+
 disableScriptApproval()
 cloneRepo(repoPath)
 LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
@@ -36,6 +38,14 @@ xmlFiles.each { xmlFile ->
             }
             if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
                 globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
+            }
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
+                cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
+            }
+            pipelineTriggers {
+                triggers {
+                    cron(cronValue)
+                }
             }
         }
 
