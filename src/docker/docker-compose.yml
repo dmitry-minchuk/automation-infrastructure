@@ -7,8 +7,8 @@ services:
     ports:
       - "8088:8080"
       - "50000:50000"
-    env_file:
-      - variables.env
+#    env_file:
+#      - variables.env
     volumes:
       - ./jenkins:/var/jenkins_home
       - /var/jenkins_home/workspace/allure-report
@@ -22,8 +22,8 @@ services:
     command: -listen :4444 -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video/ -timeout 3m -limit 10
     ports:
       - "4444:4444"
-    env_file:
-      - variables.env
+#    env_file:
+#      - variables.env
     volumes:
       - $PWD:/etc/selenoid/ # assumed current dir contains browsers.json
       - /var/run/docker.sock:/var/run/docker.sock
