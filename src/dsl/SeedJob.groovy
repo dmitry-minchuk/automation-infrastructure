@@ -151,7 +151,7 @@ static def appendMvnCommand(StringBuilder mavenCommand, String mvnPropertyName, 
 }
 
 def buildSeleniumHostProperty(StringBuilder mavenCommand) {
-    String serverIp = sh(script: "curl http://checkip.amazonaws.com", returnStdout: true)
+    String serverIp = "curl http://checkip.amazonaws.com".execute()
     String mvnProperty = " -Dselenium_host=http://" + serverIp + ":4444/wd/hub"
     mavenCommand.append(mvnProperty)
 }
