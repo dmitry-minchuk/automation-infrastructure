@@ -11,7 +11,6 @@ services:
 #      - variables.env
     volumes:
       - ./jenkins:/var/jenkins_home
-      - /var/jenkins_home/workspace/allure-report
     restart: always
 
   selenoid:
@@ -37,7 +36,7 @@ services:
       - selenoid
     ports:
       - "8080:8080"
-    env_file:
-      - variables.env
+#    env_file:
+#      - variables.env
     command: ["--selenoid-uri", "http://selenoid:4444"]
     restart: always

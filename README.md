@@ -87,3 +87,17 @@ pipeline {
   }
 }
 ```
+
+## Required Jenkins Plugins:
+
+* DSL plugin (https://plugins.jenkins.io/job-dsl/)
+* Pipeline plugin (https://plugins.jenkins.io/workflow-aggregator/)
+* Any github integration plugin (for example: https://plugins.jenkins.io/github-pullrequest/)
+* Global Variable String Parameter plugin (https://plugins.jenkins.io/global-variable-string-parameter/)
+
+Optional plugins:
+* Allure Jenkins plugin (to get reports in every job results)
+* Cucumber plugin (to build pretty Cucumber reports in job results)
+* TestNG Results plugin (to build testNG report in job results)
+* Post Build Task plugin (to execute any scripts the maven finished its tasts)
+* Custom Tools plugin (to add custom software to execute in environment)
