@@ -74,7 +74,7 @@ static def getXmlFileList(String repoName) {
 }
 
 def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
-    println('Getting all registered jobs:')
+    println("\nGetting all registered jobs:")
 
     def existingJobs = Jenkins.instance.getAllItems()
     def existingJobNames = []
@@ -83,7 +83,7 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
         existingJobNames.add(j.fullName)
     }
 
-    println('Getting all xml files:')
+    println("\nGetting all xml files:")
 
     def xmlFileNames = []
     xmlFiles.each { x ->
@@ -91,7 +91,7 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
         xmlFileNames.add(x.getKey())
     }
 
-    println('Looging for jobs to delete:')
+    println("\nLooging for jobs to delete:")
 
     def jobsToDelete = []
     existingJobNames.each { e ->
@@ -107,7 +107,7 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
         }
     }
 
-    println('Unnecessary job deletion complete.')
+    println("\nUnnecessary job deletion complete.")
 }
 
 def retrieveFileRawValue(File file, String parameterName) {
