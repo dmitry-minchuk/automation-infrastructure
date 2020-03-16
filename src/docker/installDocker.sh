@@ -29,3 +29,5 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.25.3/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 docker-compose --version
+
+sudo service docker start
