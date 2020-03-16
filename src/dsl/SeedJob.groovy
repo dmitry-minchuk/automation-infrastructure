@@ -89,7 +89,7 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
         xmlFileNames.add(x.getKey())
     }
 
-    println("\nLooging for jobs to delete:")
+    println("\nLooking for jobs to delete...")
 
     def jobsToDelete = []
     existingJobNames.each { e ->
@@ -97,6 +97,8 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
             jobsToDelete.add(e)
         }
     }
+
+    println("\nUnnecessary job deletion...")
 
     existingJobs.each() { e ->
         if(jobsToDelete.contains(e.name)) {
@@ -112,9 +114,10 @@ def retrieveFileRawValue(File file, String parameterName) {
     def splitFile = ''
     if (file.text.length() > 0) {
         splitFile = file.text.split('<')
+        def parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
+        def parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
+        println(parameterName + ': ' + parameterValue)
+        return parameterValue
     }
-    def parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
-    def parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
-    println(parameterName + ': ' + parameterValue)
-    return parameterValue
+    throw new RuntimeException("Empty xml file!")
 }
