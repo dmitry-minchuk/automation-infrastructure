@@ -1,20 +1,19 @@
 import javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration
 import jenkins.model.*
 
-def seedJobName = 'SeedJob' // Need to be excluded from the deletion list
+String seedJobName = 'SeedJob' // Need to be excluded from the deletion list
 
 // defining repository
-def repoName = 'pipeline-demo'
-def repoPath = 'git://github.com/dmitry-minchuk/' + repoName + '.git'
+String repoName = 'pipeline-demo'
+String repoPath = 'git://github.com/dmitry-minchuk/' + repoName + '.git'
 
 //jenkins job parameters
-def suiteName = 'suite_name'
-def enableVnc = 'enable_vnc'
-def jenkinsDefaultRetryCount = 'retry_count'
-def env = 'env'
-def cron = 'cron'
+String enableVnc = 'enable_vnc'
+String jenkinsDefaultRetryCount = 'retry_count'
+String env = 'env'
+String cron = 'cron'
 
-String cronValue = '0 5 31 2 *' //default cron
+String cronValue = '0 5 31 2 *' //default never executable cron
 
 disableScriptApproval()
 cloneRepo(repoPath)
@@ -24,21 +23,22 @@ updateJobList(xmlFiles, seedJobName)
 println("\nGenerating pipeline jobs...")
 xmlFiles.each { xmlFile ->
     pipelineJob(xmlFile.getKey()) {
+        //building maven command with original maven property names and its values
+        StringBuilder mavenCommand = new StringBuilder("mvn clean test")
+        buildSeleniumHostProperty(mavenCommand)
+        appendMvnCommand(mavenCommand, "suite", xmlFile.getKey())
+        if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), enableVnc))) {
+            appendMvnCommand(mavenCommand, 'enableVNC', retrieveFileRawValue(xmlFile.getValue(), enableVnc))
+        }
+        if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))) {
+            appendMvnCommand(mavenCommand, jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))
+        }
+        if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), env))) {
+            appendMvnCommand(mavenCommand, env, retrieveFileRawValue(xmlFile.getValue(), env))
+        }
+        println('Maven command executable: ' + mavenCommand)
         parameters {
-            globalVariableParam(suiteName, xmlFile.getKey(), 'Suite name')
-
-            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), enableVnc))) {
-                globalVariableParam(enableVnc, retrieveFileRawValue(xmlFile.getValue(), enableVnc), 'Video streaming from selenoid_ui.')
-            }
-            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))) {
-                globalVariableParam(jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount), 'Number of attempts for UI failing test.')
-            }
-            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), env))) {
-                globalVariableParam(env, retrieveFileRawValue(xmlFile.getValue(), env), 'Test environment to run the suite in.')
-            }
-            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
-                globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
-            }
+            globalVariableParam('MVN_COMMAND', mavenCommand, 'Maven executable for ' + xmlFile.getKey() + '.xml pipeline job')
             if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
                 cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
             }
@@ -130,11 +130,10 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
 }
 
 def retrieveFileRawValue(File file, String parameterName) {
-    def splitFile = ''
     if (file.text.length() > 0) {
-        splitFile = file.text.split('<')
+        def splitFile = file.text.split('<')
         String parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
-        String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
+        String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '')
         println(parameterName + ': ' + parameterValue)
         return parameterValue
     }
@@ -143,4 +142,16 @@ def retrieveFileRawValue(File file, String parameterName) {
 
 static def isParameterExists(String parameterName) {
  return parameterName != null && "" != parameterName && !parameterName.equalsIgnoreCase("null")
+}
+
+static def appendMvnCommand(StringBuilder mavenCommand, String mvnPropertyName, String mvnPropertyValue) {
+    if (isParameterExists(mvnPropertyValue)) {
+        mavenCommand.append(" -D" + mvnPropertyName + "=" + mvnPropertyValue)
+    }
+}
+
+def buildSeleniumHostProperty(StringBuilder mavenCommand) {
+    String serverIp = sh(script: "curl http://checkip.amazonaws.com", returnStdout: true)
+    String mvnProperty = " -Dselenium_host=http://" + serverIp + ":4444/wd/hub"
+    mavenCommand.append(mvnProperty)
 }
