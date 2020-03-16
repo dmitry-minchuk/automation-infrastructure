@@ -24,10 +24,19 @@ xmlFiles.each { xmlFile ->
     pipelineJob(xmlFile.getKey()) {
         parameters {
             globalVariableParam(suiteName, xmlFile.getKey(), 'Suite name')
-            globalVariableParam(enableVnc, retrieveFileRawValue(xmlFile.getValue(), enableVnc), 'Video streaming from selenoid_ui.')
-            globalVariableParam(jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount), 'Number of attempts for UI failing test.')
-            globalVariableParam(env, retrieveFileRawValue(xmlFile.getValue(), env), 'Test environment to run the suite in.')
-            globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
+
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), enableVnc))) {
+                globalVariableParam(enableVnc, retrieveFileRawValue(xmlFile.getValue(), enableVnc), 'Video streaming from selenoid_ui.')
+            }
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))) {
+                globalVariableParam(jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount), 'Number of attempts for UI failing test.')
+            }
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), env))) {
+                globalVariableParam(env, retrieveFileRawValue(xmlFile.getValue(), env), 'Test environment to run the suite in.')
+            }
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
+                globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
+            }
         }
 
         description(xmlFile.getKey() + '.xml pipeline job')
@@ -114,10 +123,14 @@ def retrieveFileRawValue(File file, String parameterName) {
     def splitFile = ''
     if (file.text.length() > 0) {
         splitFile = file.text.split('<')
-        def parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
-        def parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
+        String parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
+        String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '');
         println(parameterName + ': ' + parameterValue)
         return parameterValue
     }
-    throw new RuntimeException("Empty xml file!")
+    throw new RuntimeException("Empty .xml file!")
+}
+
+static def isParameterExists(String parameterName) {
+ return parameterName != null && "" != parameterName && !parameterName.equalsIgnoreCase("null")
 }
