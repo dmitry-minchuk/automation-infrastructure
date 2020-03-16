@@ -19,7 +19,7 @@ cloneRepo(repoPath)
 LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
 updateJobList(xmlFiles, seedJobName)
 
-println("\nGenerating pipeline jobs.")
+println("\nGenerating pipeline jobs...")
 xmlFiles.each { xmlFile ->
     pipelineJob(xmlFile.getKey()) {
         parameters {
@@ -30,7 +30,6 @@ xmlFiles.each { xmlFile ->
             globalVariableParam(cron, retrieveFileRawValue(xmlFile.getValue(), cron), 'Scheduling rule for the suite.')
         }
 
-        triggers {}
         description(xmlFile.getKey() + '.xml pipeline job')
 
         definition {
