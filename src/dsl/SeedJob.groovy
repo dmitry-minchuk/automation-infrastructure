@@ -42,22 +42,16 @@ xmlFiles.each { xmlFile ->
         println('Maven command executable: ' + mavenCommand)
         parameters {
             globalVariableParam('MVN_COMMAND', mavenCommand.toString(), 'Maven executable for ' + xmlFile.getKey() + '.xml pipeline job')
-//            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
-//                cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
-//            }
-//            pipelineTriggers {
-//                triggers {
-//                    cron(cronValue)
-//                }
-//            }
+            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
+                cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
+            }
+            pipelineTriggers {
+                triggers {
+                    cron(cronValue)
+                }
+            }
         }
-
-        if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
-            cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
-        }
-        triggers {
-            cron("${cronValue}")
-        }
+        
         description(xmlFile.getKey() + '.xml pipeline job')
 
         definition {
