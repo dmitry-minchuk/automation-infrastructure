@@ -138,7 +138,7 @@ def updateJobList(LinkedHashMap<String,File> xmlFiles, String seedJobName) {
     println("Unnecessary job deletion complete.\n")
 }
 
-def retrieveFileRawValue(File file, String parameterName) {
+static def retrieveFileRawValue(File file, String parameterName) {
     if (file.text.length() > 0) {
         def splitFile = file.text.split('<')
         String parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
@@ -159,7 +159,7 @@ static def appendMvnCommand(StringBuilder mavenCommand, String mvnPropertyName, 
     }
 }
 
-def buildSeleniumHostProperty(StringBuilder mavenCommand) {
+static def buildSeleniumHostProperty(StringBuilder mavenCommand) {
     String serverIp = "curl http://checkip.amazonaws.com".execute().text.trim()
     String mvnProperty = " -Dselenium_host=http://" + serverIp + ":4444/wd/hub"
     mavenCommand.append(mvnProperty)
