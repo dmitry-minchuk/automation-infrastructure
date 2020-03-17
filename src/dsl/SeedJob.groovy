@@ -15,12 +15,11 @@ String cron = 'cron'
 
 String cronValue = '0 5 31 2 *' //default never executable cron
 
+String deleteClonedRepo = "rm -r " + repoName
+deleteClonedRepo.execute()
+
 disableScriptApproval()
-if(isRepoExists(repoName)) {
-    makePull(repoName)
-} else {
-    cloneRepo(repoPath)
-}
+cloneRepo(repoPath)
 LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
 updateJobList(xmlFiles, seedJobName)
 
@@ -75,13 +74,6 @@ xmlFiles.each { xmlFile ->
         }
     }
 }
-//String listAll = "la -la"
-//listAll.execute()
-//println("Deleting cloned repo...")
-//String deleteClonedRepo = "rm -r " + repoName
-//deleteClonedRepo.execute()
-//println("Repo was deleted.")
-//listAll.execute()
 
 //helpers
 @SuppressWarnings("GroovyAssignabilityCheck")
@@ -89,18 +81,6 @@ def disableScriptApproval() {
     println("\nDisabling jenkins script approval.")
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).useScriptSecurity=false
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
-}
-
-static boolean isRepoExists(String repoName) {
-    return "ls -la".execute().text.contains(repoName)
-}
-
-static def makePull(String repoName) {
-    String navigateToRepoDir = "cd " + repoName
-    navigateToRepoDir.execute()
-    "git pull origin master".execute()
-    sleep(5000)
-    "cd ..".execute()
 }
 
 static def cloneRepo(String repoPath) {
