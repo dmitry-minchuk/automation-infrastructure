@@ -71,6 +71,13 @@ xmlFiles.each { xmlFile ->
         }
     }
 }
+String listAll = "la -la"
+listAll.execute()
+println("Deleting cloned repo...")
+String deleteClonedRepo = "rm -r " + repoName
+deleteClonedRepo.execute()
+println("Repo was deleted.")
+listAll.execute()
 
 //helpers
 @SuppressWarnings("GroovyAssignabilityCheck")
