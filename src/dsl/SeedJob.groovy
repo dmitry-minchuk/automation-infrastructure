@@ -86,7 +86,7 @@ static def cloneRepo(String repoPath) {
     String repoCloneCommand = 'git clone ' + repoPath
     println('Executing following script: ' + repoCloneCommand)
     repoCloneCommand.execute()
-    sleep(5000)
+    sleep(10000)
 }
 
 static def getXmlFileList(String repoName) {
