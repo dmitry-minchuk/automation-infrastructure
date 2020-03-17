@@ -143,7 +143,7 @@ def retrieveFileRawValue(File file, String parameterName) {
         def splitFile = file.text.split('<')
         String parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
         String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '').trim()
-        println(parameterName + ': ' + parameterValue)
+        //println(parameterName + ': ' + parameterValue)
         return parameterValue
     }
     throw new RuntimeException("Empty .xml file!")
