@@ -16,7 +16,11 @@ String cron = 'cron'
 String cronValue = '0 5 31 2 *' //default never executable cron
 
 disableScriptApproval()
-cloneRepo(repoPath)
+if(isRepoExists(repoName)) {
+    makePull(repoName)
+} else {
+    cloneRepo(repoPath)
+}
 LinkedHashMap<String,File> xmlFiles = getXmlFileList(repoName)
 updateJobList(xmlFiles, seedJobName)
 
@@ -71,13 +75,13 @@ xmlFiles.each { xmlFile ->
         }
     }
 }
-String listAll = "la -la"
-listAll.execute()
-println("Deleting cloned repo...")
-String deleteClonedRepo = "rm -r " + repoName
-deleteClonedRepo.execute()
-println("Repo was deleted.")
-listAll.execute()
+//String listAll = "la -la"
+//listAll.execute()
+//println("Deleting cloned repo...")
+//String deleteClonedRepo = "rm -r " + repoName
+//deleteClonedRepo.execute()
+//println("Repo was deleted.")
+//listAll.execute()
 
 //helpers
 @SuppressWarnings("GroovyAssignabilityCheck")
@@ -87,8 +91,20 @@ def disableScriptApproval() {
     GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
 }
 
-static def cloneRepo(String repo) {
-    String repoCloneCommand = 'git clone ' + repo
+static boolean isRepoExists(String repoName) {
+    return "ls -la".execute().text.contains(repoName)
+}
+
+static def makePull(String repoName) {
+    String navigateToRepoDir = "cd " + repoName
+    navigateToRepoDir.execute()
+    "git pull origin master".execute()
+    sleep(5000)
+    "cd ..".execute()
+}
+
+static def cloneRepo(String repoPath) {
+    String repoCloneCommand = 'git clone ' + repoPath
     println('Executing following script: ' + repoCloneCommand)
     repoCloneCommand.execute()
     sleep(5000)
