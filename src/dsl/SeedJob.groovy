@@ -56,7 +56,7 @@ xmlFiles.each { xmlFile ->
             cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
         }
         triggers {
-            cron(cronValue)
+            cron("${cronValue}")
         }
         description(xmlFile.getKey() + '.xml pipeline job')
 
