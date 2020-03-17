@@ -134,7 +134,7 @@ def retrieveFileRawValue(File file, String parameterName) {
     if (file.text.length() > 0) {
         def splitFile = file.text.split('<')
         String parameterRaw = splitFile.find { it.toString().contains(parameterName)}.toString()
-        String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '')
+        String parameterValue = parameterRaw.substring(parameterRaw.lastIndexOf('=') + 1).replaceAll('"', '').replaceAll('/>', '').trim()
         println(parameterName + ': ' + parameterValue)
         return parameterValue
     }
