@@ -29,29 +29,34 @@ xmlFiles.each { xmlFile ->
         //building maven command with original maven property names and its values
         StringBuilder mavenCommand = new StringBuilder("mvn clean test")
         buildSeleniumHostProperty(mavenCommand)
-        appendMvnCommand(mavenCommand, "suite", xmlFile.getKey())
+        appendMvnCommand(mavenCommand, "suite", xmlFile.getKey().replaceAll('.xml', ''))
+
         if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), enableVnc))) {
             appendMvnCommand(mavenCommand, 'enableVNC', retrieveFileRawValue(xmlFile.getValue(), enableVnc))
         }
+
         if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))) {
             appendMvnCommand(mavenCommand, jenkinsDefaultRetryCount, retrieveFileRawValue(xmlFile.getValue(), jenkinsDefaultRetryCount))
         }
+
         if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), env))) {
             appendMvnCommand(mavenCommand, env, retrieveFileRawValue(xmlFile.getValue(), env))
         }
-        println('Maven command executable: ' + mavenCommand)
+
+        println('Maven command executable for ' + xmlFile.getKey() + ' job: ' + mavenCommand)
+
         parameters {
             globalVariableParam('MVN_COMMAND', mavenCommand.toString(), 'Maven executable for ' + xmlFile.getKey() + '.xml pipeline job')
-            if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
-                cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
-            }
-            pipelineTriggers {
-                triggers {
-                    cron(cronValue)
-                }
-            }
+
         }
-        
+
+        if(isParameterExists(retrieveFileRawValue(xmlFile.getValue(), cron))) {
+            cronValue = retrieveFileRawValue(xmlFile.getValue(), cron)
+        }
+        triggers {
+            scm '0 5 31 2 *'
+        }
+
         description(xmlFile.getKey() + '.xml pipeline job')
 
         definition {
@@ -145,7 +150,7 @@ def retrieveFileRawValue(File file, String parameterName) {
 }
 
 static def isParameterExists(String parameterName) {
- return parameterName != null && "" != parameterName && !parameterName.equalsIgnoreCase("null")
+    return parameterName != null && "" != parameterName && !parameterName.equalsIgnoreCase("null")
 }
 
 static def appendMvnCommand(StringBuilder mavenCommand, String mvnPropertyName, String mvnPropertyValue) {
