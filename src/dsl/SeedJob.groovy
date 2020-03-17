@@ -4,7 +4,7 @@ import jenkins.model.*
 String seedJobName = 'SeedJob' // Need to be excluded from the deletion list
 
 // defining repository
-String repoName = 'pipeline-demo'
+String repoName = 'selenide-based.git'
 String repoPath = 'git://github.com/dmitry-minchuk/' + repoName + '.git'
 
 //jenkins job parameters
