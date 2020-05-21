@@ -31,3 +31,8 @@ sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 
 sudo service docker start
+
+# To get rid of sudo:
+#sudo groupadd docker
+#sudo gpasswd -a $USER docker
+# restart machine
