@@ -46,7 +46,7 @@ Should be copied to `/etc/selenoid/browsers.json` because this path is used as d
 ### .env files
 .env files were used for storing server IP and transfering this IP further to the JobDSL script, which will send it to the global variables and Jenkinsfile (pipeline script) use it in building the path to the selenium_host. But since there is an ability to get the host IP by executing of short curl command `curl http://checkip.amazonaws.com` right in pipeline script on the fly we don't need .env files eny more (**this information is unchecked in production**). Also .env files are not usable if we have _Amazon_EC2_Plugin_ installed and request additional instances dynamically with AMI (Amazon Machine Image).
 
-### What is in docker-compose.yml
+### What is in docker-compose.yaml
 Docker compose file may contain any items, but 3 of them are must:
 * Jenkins
 * Selenoid

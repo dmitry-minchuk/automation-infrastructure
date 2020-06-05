@@ -9,10 +9,3 @@ if [[ ! -d jenkins ]]; then
     echo creating jenkins folder...
     mkdir jenkins
 fi
-
-# pull required docker images
-docker pull selenoid/chrome
-docker pull selenoid/firefox
-
-# start
-docker-compose up

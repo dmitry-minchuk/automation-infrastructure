@@ -1,0 +1,89 @@
+---
+- name: infra installation
+  hosts: infra_server
+  tasks:
+
+    #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+    - name: install git and nano
+      become: yes
+      apt:
+        name: ['git', 'nano']
+        update_cache: yes
+        state: present
+
+    #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+    - name: clone infra repo
+      git:
+        repo: 'https://github.com/dmitry-minchuk/automation-infrastructure'
+        dest: ~/automation-infrastructure
+        force: yes
+
+    - name: install needed dependencies
+      become: yes
+      apt:
+        force_apt_get: yes
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'gnupg-agent', 'software-properties-common']
+        update_cache: yes
+        state: present
+
+    - name: install OpenPGP
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
+
+    - name: install apt-key
+      become: yes
+      apt_key:
+        keyserver: https://download.docker.com/linux/ubuntu/gpg
+        id: 0EBFCD88
+
+    - name: add docker repository
+      become: yes
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: install docker
+      become: yes
+      apt:
+        force_apt_get: yes
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+        update_cache: yes
+        state: present
+
+    - name: install docker-compose
+      become: yes
+      shell: curl -L "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+    - name: change docker-compose dir access rights
+      become: yes
+      shell: chmod +x /usr/local/bin/docker-compose
+
+    - name: ensure group "docker" exists
+      group:
+        name: docker
+        state: present
+
+    - name: add current user to the group
+      become: yes
+      user:
+        name: "{{hostvars['infra_server'].ansible_user}}"
+        shell: /bin/bash
+        groups: docker
+        append: yes
+
+    - name: unconditionally reboot the machine with all defaults
+      become: yes
+      reboot:
+
+    - name: raise containers
+      #I'm running docker-compose by Ansible installed on Controller machine - so create-jenkins-folder.sh should be located on Controller
+      script: ~/Projects/automation-infrastructure/src/ansible/create-jenkins-folder.sh
+
+    - name: pull selenoid/chrome
+      shell: docker pull selenoid/chrome
+
+    - name: pull selenoid/firefox
+      shell: docker pull selenoid/firefox
+
+    - name: raise containers
+      #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+      shell: docker-compose -f ~/automation-infrastructure/src/docker/docker-compose.yaml up -d
