@@ -1,7 +1,7 @@
 # Docker-Based Automation Infrastructure
 This project consists of 2 logical parts: **installing infrastructure** and **setting DSL script on Jenkins**
 
-## Installing Infrastructure
+## Installing Infrastructure - option #1
 First of all pull this repository to your AWS Ubuntu server:
 ```
 git clone https://github.com/dmitry-minchuk/automation-infra.git
@@ -58,6 +58,11 @@ Some Nginx configuration inside the container:
 * In `/etc/nginx/nginx.conf` set `sendfile off`
 * In `/etc/nginx/conf.d/default.comf` set valid path to your _index.html_
     
+## Installing Infrastructure - option #2
+* Install Ansible on your laptop
+* Clone this repository
+* Fill inventory.yaml file with valid values for your dedicated server
+* Check SERVER_IP:8088 for Jenkins
 
 ## DSL job configuration
 After all the containers are up and running we can create a SeedJob that will parse specified repositories and create jobs automatically. Job creation is based on existing .xml files.
