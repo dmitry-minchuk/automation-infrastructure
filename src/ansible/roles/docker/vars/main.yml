@@ -1,2 +1,5 @@
 ---
 # vars file for docker
+
+docker_ubuntu_version: focal
+docker_compose_version: 1.25.3

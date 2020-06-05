@@ -20,7 +20,7 @@
   - name: add docker repository
     become: yes
     apt_repository:
-      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      repo: "deb https://download.docker.com/linux/ubuntu {{docker_ubuntu_version}} stable"
       state: present
 
   - name: install docker
@@ -33,7 +33,7 @@
 
   - name: install docker-compose
     become: yes
-    shell: curl -L "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    shell: curl -L "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
   - name: change docker-compose dir access rights
     become: yes

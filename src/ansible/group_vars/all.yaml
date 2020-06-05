@@ -1,0 +1,6 @@
+---
+# Variables listed here are applicable to all host groups
+
+repository: https://github.com/dmitry-minchuk/automation-infrastructure
+controller_base_path: ~/Projects/automation-infrastructure/src
+target_base_path: ~/automation-infrastructure/src
