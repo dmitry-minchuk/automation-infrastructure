@@ -1,0 +1,30 @@
+---
+# tasks file for infra
+  #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+  - name: install git and nano
+    become: yes
+    apt:
+      name: ['git', 'nano']
+      update_cache: yes
+      state: present
+
+  #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+  - name: clone infra repo
+    git:
+      repo: 'https://github.com/dmitry-minchuk/automation-infrastructure'
+      dest: ~/automation-infrastructure
+      force: yes
+
+  - name: create Jenkins directory
+    #I'm running docker-compose by Ansible installed on Controller machine - so create-jenkins-folder.sh should be located on Controller
+    script: ~/Projects/automation-infrastructure/src/ansible/create-jenkins-folder.sh
+
+  - name: pull selenoid/chrome
+    shell: docker pull selenoid/chrome
+
+  - name: pull selenoid/firefox
+    shell: docker pull selenoid/firefox
+
+  - name: raise containers
+    #I'm running docker-compose through Target machine shell - so docker-compose.yaml should be located on Target
+    shell: docker-compose -f ~/automation-infrastructure/src/docker/docker-compose.yaml up -d
