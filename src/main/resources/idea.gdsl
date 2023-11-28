@@ -1,4 +1,6 @@
-def jobPath = /.*\/jobs\/.*\.groovy/
+// enable DSL support in IDEA, see https://confluence.jetbrains.com/display/GRVY/Scripting+IDE+for+DSL+awareness
+
+def jobPath = /.*\/dsl\/.*\.groovy/
 
 def ctx = context(pathRegexp: jobPath)
 contributor(ctx, {
